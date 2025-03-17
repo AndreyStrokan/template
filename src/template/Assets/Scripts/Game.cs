@@ -1,6 +1,112 @@
 using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
+
+public class Scenario
+{
+    public Question[] Questions =
+    {
+        new()
+        {
+            Text = "Question 1",
+            Answers = new Answer[]
+            {
+                new Answer()
+                {
+                    Text = "Answer 1",
+                    Characteristics = new()
+                    {
+                        [Characteristic.Progressivity] = 10
+                    },
+                    NextQuestionIndex = 1
+                },
+                new Answer()
+                {
+                    Text = "Answer 2",
+                    Characteristics = new()
+                    {
+                        [Characteristic.Emotions] = 8
+                    },
+                    NextQuestionIndex = 1
+                },
+                new Answer()
+                {
+                    Text = "Answer 3",
+                    Characteristics = new()
+                    {
+                        [Characteristic.Selfishness] = 4,
+                        [Characteristic.Altruism] = -5,
+                    },
+                    NextQuestionIndex = 1
+                },
+                new Answer()
+                {
+                    Text = "Answer 4",
+                    Characteristics = new()
+                    {
+                        [Characteristic.Logics] = -10
+                    },
+                    NextQuestionIndex = 1
+                }
+            }
+        },
+        new()
+        {
+            Text = "Question 2",
+            Answers = new Answer[]
+            {
+                new Answer()
+                {
+                    Text = "Answer 1",
+                    Characteristics = new()
+                    {
+                        [Characteristic.Progressivity] = 10
+                    },
+                    NextQuestionIndex = 0
+                },
+                new Answer()
+                {
+                    Text = "Answer 2",
+                    Characteristics = new()
+                    {
+                        [Characteristic.Emotions] = 8
+                    },
+                    NextQuestionIndex = 0
+                },
+                new Answer()
+                {
+                    Text = "Answer 3",
+                    Characteristics = new()
+                    {
+                        [Characteristic.Selfishness] = 4,
+                        [Characteristic.Altruism] = -5,
+                    },
+                    NextQuestionIndex = 0
+                },
+                new Answer()
+                {
+                    Text = "Answer 4",
+                    Characteristics = new()
+                    {
+                        [Characteristic.Logics] = -10
+                    },
+                    NextQuestionIndex = 0
+                }
+            }
+        }
+    };
+
+
+}
+
+public class Question
+{
+    public string Text { get; set; }
+    public Answer[] Answers { get; set; }
+}
+
+
 
 public class Game : MonoBehaviour
 {
@@ -14,20 +120,29 @@ public class Game : MonoBehaviour
         this.answersModel = answersModel;
     }
 
-    public async UniTask StartAsync(CancellationToken ct)
+    public async UniTask StartAsync(Scenario scenario, CancellationToken ct)
     {
-        int i = 0;
+        var state = new Dictionary<Characteristic, int>();
+        var questionIndex = 0;
         while (!ct.IsCancellationRequested)
         {
-            questionModel.Question.Value = i.ToString();
+            questionModel.Question.Value = scenario.Questions[questionIndex].Text;
+            answersModel.Answers.Value = scenario.Questions[questionIndex].Answers;
 
-            answersModel.Answer1.Value = (i+1).ToString();
-            answersModel.Answer2.Value = (i+2).ToString();
-            answersModel.Answer3.Value = (i+3).ToString();
-            answersModel.Answer4.Value = (i+4).ToString();
+            var selectedAnswerIndex = await answersModel.PlayerInput.WaitAsync(ct);
+            var selectedAnswer = scenario.Questions[questionIndex].Answers[selectedAnswerIndex];
 
-            await UniTask.Delay(1000);
-            i++;
+            foreach (var selectedAnswerCharacteristic in selectedAnswer.Characteristics)
+            {
+                if (!state.ContainsKey(selectedAnswerCharacteristic.Key))
+                {
+                    state.Add(selectedAnswerCharacteristic.Key, 0);
+                }
+
+                state[selectedAnswerCharacteristic.Key] += selectedAnswerCharacteristic.Value;
+            }
+
+            questionIndex = selectedAnswer.NextQuestionIndex;
         }
     }
 }

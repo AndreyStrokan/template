@@ -1,54 +1,59 @@
-using TMPro;
+using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class AnswersView : ViewBase
 {
-    [Header("Answer 1")]
+    [Header("Prefabs")]
     [SerializeField]
-    private Button btn_Answer1;
+    private AnswerControl answerPrefabDescriptor;
 
+    [Header("Scene")]
     [SerializeField]
-    private TMP_Text txt_Answer1;
+    private Transform grp_Container;
 
-    [Header("Answer 2")]
-    [SerializeField]
-    private Button btn_Answer2;
+    private List<AnswerControl> instantiatedAnswers = new();
 
-    [SerializeField]
-    private TMP_Text txt_Answer2;
+    private CancellationTokenSource internalWaitingCts;
 
-    [Header("Answer 3")]
-    [SerializeField]
-    private Button btn_Answer3;
-
-    [SerializeField]
-    private TMP_Text txt_Answer3;
-
-    [Header("Answer 4")]
-    [SerializeField]
-    private Button btn_Answer4;
-
-    [SerializeField]
-    private TMP_Text txt_Answer4;
-
-    public void SetAnswer1(string text)
+    public async UniTask<int> WaitPlayerInputAsync(CancellationToken ct)
     {
-        txt_Answer1.text = text;
+        internalWaitingCts?.Cancel();
+        internalWaitingCts = new();
+
+        var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, internalWaitingCts.Token);
+
+        var tasks = new List<UniTask>();
+        foreach (var answer in instantiatedAnswers)
+        {
+            tasks.Add(answer.OnClickAsync(linkedCts.Token));
+        }
+
+        var index = await UniTask.WhenAny(tasks).AttachExternalCancellation(linkedCts.Token);
+        return index;
     }
 
-    public void SetAnswer2(string text)
+    public void CreateAnswer(Answer answer)
     {
-        txt_Answer2.text = text;
+        var answerControl = Instantiate(answerPrefabDescriptor, grp_Container.transform);
+        answerControl.Answer = answer.Text;
+        answerControl.Interabtable = true;
+        instantiatedAnswers.Add(answerControl);
     }
 
-    public void SetAnswer3(string text)
+    public void Clear()
     {
-        txt_Answer3.text = text;
+        foreach (var answer in instantiatedAnswers)
+        {
+            Destroy(answer.gameObject);
+        }
+
+        instantiatedAnswers.Clear();
     }
 
-    public void SetAnswer4(string text)
+    private void OnDestroy()
     {
-        txt_Answer4.text = text;
+        Clear();
     }
 }

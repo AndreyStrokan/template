@@ -1,13 +1,17 @@
-using Cysharp.Threading.Tasks.Linq;
-
 public class QuestionPresenter : PresenterBase<QuestionView, QuestionModel>
 {
     public QuestionPresenter(QuestionView view, QuestionModel model) : base(view, model)
     {
-        model.Question.Subscribe(x => view.SetQuestion(x));
+        Model.Question.PropertyChanged += OnQuestionUpdated;
+    }
+
+    private void OnQuestionUpdated()
+    {
+        View.SetQuestion(Model.Question.Value);
     }
 
     public override void Dispose()
     {
+        Model.Question.PropertyChanged -= OnQuestionUpdated;
     }
 }

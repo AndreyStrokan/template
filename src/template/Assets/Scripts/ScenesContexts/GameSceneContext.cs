@@ -48,7 +48,7 @@ public class GameSceneContext : SceneContextBase
         answersPresenter = new(answersView, answersModel);
 
         game.Initialize(questionModel, answersModel);
-        await game.StartAsync(ct);
+        await game.StartAsync(new(), ct);
     }
 
 
