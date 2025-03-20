@@ -1,111 +1,199 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-public class Scenario
+public class ActorDTO
 {
-    public Question[] Questions =
+    public string Name { get; set; }
+    public byte[] PNGImage { get; set; }
+}
+
+public class EnvironmentDTO
+{
+    public byte[] PNGImage { get; set; }
+}
+
+public class QuestionDTO
+{
+    public string Text { get; set; }
+    public AnswerDTO[] Answers { get; set; }
+}
+
+public class ScenarioNodeDTO
+{
+    public int ActorId { get; set; }
+    public int EnvironmentId { get; set; }
+
+    // QuestionId IF CharacteristicId matches Condition
+    public Dictionary<int, Dictionary<int, ConditionDTO>> QuestionSelectionCondition;
+}
+
+public class ScenarioDTO
+{
+    public ActorDTO[] Actors =
+    {
+        new()
+        {
+            Name = "Trump",
+            PNGImage = new byte[0]
+        },
+        new()
+        {
+            Name = "Elon",
+            PNGImage = new byte[0]
+        }
+    };
+
+    public string[] Characteristics =
+    {
+        "EmotionsAndLogics",
+        "SelfishnessAndAltruism",
+        "ProgressivityAndConservatism",
+        "DiplomacyAndAggression"
+    };
+
+    public EnvironmentDTO[] Environments =
+    {
+        new()
+        {
+            PNGImage = new byte[0]
+        }
+    };
+
+    public QuestionDTO[] Questions =
     {
         new()
         {
             Text = "Question 1",
-            Answers = new Answer[]
+            Answers = new AnswerDTO[]
             {
-                new Answer()
+                new AnswerDTO()
                 {
                     Text = "Answer 1",
-                    Characteristics = new()
+                    ImpactOnCharacteristics = new()
                     {
-                        [Characteristic.Progressivity] = 10
+                        [2] = 10
                     },
-                    NextQuestionIndex = 1
+                    AvailabilityCondition =
+                    {
+                        [2] = new()
+                        {
+                            Type = ConditionType.MoreThan,
+                            Value = 10
+                        }
+                    }
                 },
-                new Answer()
+                new AnswerDTO()
                 {
                     Text = "Answer 2",
-                    Characteristics = new()
+                    ImpactOnCharacteristics = new()
                     {
-                        [Characteristic.Emotions] = 8
+                        [0] = 8
                     },
-                    NextQuestionIndex = 1
                 },
-                new Answer()
+                new AnswerDTO()
                 {
                     Text = "Answer 3",
-                    Characteristics = new()
+                    ImpactOnCharacteristics = new()
                     {
-                        [Characteristic.Selfishness] = 4,
-                        [Characteristic.Altruism] = -5,
+                        [1] = -5,
                     },
-                    NextQuestionIndex = 1
                 },
-                new Answer()
+                new AnswerDTO()
                 {
                     Text = "Answer 4",
-                    Characteristics = new()
+                    ImpactOnCharacteristics = new()
                     {
-                        [Characteristic.Logics] = -10
+                        [0] = -10
                     },
-                    NextQuestionIndex = 1
                 }
             }
         },
         new()
         {
             Text = "Question 2",
-            Answers = new Answer[]
+            Answers = new AnswerDTO[]
             {
-                new Answer()
+                new AnswerDTO()
                 {
                     Text = "Answer 1",
-                    Characteristics = new()
+                    ImpactOnCharacteristics = new()
                     {
-                        [Characteristic.Progressivity] = 10
+                        [2] = 10
                     },
-                    NextQuestionIndex = 0
                 },
-                new Answer()
+                new AnswerDTO()
                 {
                     Text = "Answer 2",
-                    Characteristics = new()
+                    ImpactOnCharacteristics = new()
                     {
-                        [Characteristic.Emotions] = 8
+                        [0] = 8
                     },
-                    NextQuestionIndex = 0
                 },
-                new Answer()
+                new AnswerDTO()
                 {
                     Text = "Answer 3",
-                    Characteristics = new()
+                    ImpactOnCharacteristics = new()
                     {
-                        [Characteristic.Selfishness] = 4,
-                        [Characteristic.Altruism] = -5,
+                        [1] = -5,
                     },
-                    NextQuestionIndex = 0
                 },
-                new Answer()
+                new AnswerDTO()
                 {
                     Text = "Answer 4",
-                    Characteristics = new()
+                    ImpactOnCharacteristics = new()
                     {
-                        [Characteristic.Logics] = -10
+                        [0] = -10
                     },
-                    NextQuestionIndex = 0
                 }
             }
         }
     };
 
-
+    public ScenarioNodeDTO[] Nodes =
+    {
+        new()
+        {
+            ActorId = 0,
+            EnvironmentId = 0,
+            QuestionSelectionCondition = new()
+            {
+                [0] = new(), // Default
+                [1] = new()
+                {
+                    [1] = new()
+                    {
+                        Type = ConditionType.MoreThan,
+                        Value = 10
+                    }
+                },
+                [2] = new()
+                {
+                    [1] = new()
+                    {
+                        Type = ConditionType.LessThan,
+                        Value = 10
+                    }
+                },
+                [3] = new()
+                {
+                    [0] = new()
+                    {
+                        Type = ConditionType.LessThan,
+                        Value = 3
+                    },
+                    [1] = new()
+                    {
+                        Type = ConditionType.MoreThan,
+                        Value = 5
+                    }
+                },
+            }
+        }
+    };
 }
-
-public class Question
-{
-    public string Text { get; set; }
-    public Answer[] Answers { get; set; }
-}
-
 
 
 public class Game : MonoBehaviour
@@ -120,7 +208,7 @@ public class Game : MonoBehaviour
         this.answersModel = answersModel;
     }
 
-    public async UniTask StartAsync(Scenario scenario, CancellationToken ct)
+    public async UniTask StartAsync(ScenarioDTO scenario, CancellationToken ct)
     {
         var state = new Dictionary<Characteristic, int>();
         var questionIndex = 0;
@@ -132,17 +220,15 @@ public class Game : MonoBehaviour
             var selectedAnswerIndex = await answersModel.PlayerInput.WaitAsync(ct);
             var selectedAnswer = scenario.Questions[questionIndex].Answers[selectedAnswerIndex];
 
-            foreach (var selectedAnswerCharacteristic in selectedAnswer.Characteristics)
+            foreach (var selectedAnswerCharacteristic in selectedAnswer.ImpactOnCharacteristics)
             {
-                if (!state.ContainsKey(selectedAnswerCharacteristic.Key))
-                {
-                    state.Add(selectedAnswerCharacteristic.Key, 0);
-                }
-
-                state[selectedAnswerCharacteristic.Key] += selectedAnswerCharacteristic.Value;
+                //if (!state.ContainsKey(selectedAnswerCharacteristic.Key))
+                //{
+                //    state.Add(selectedAnswerCharacteristic.Key, 0);
+                //}
+                //
+                //state[selectedAnswerCharacteristic.Key] += selectedAnswerCharacteristic.Value;
             }
-
-            questionIndex = selectedAnswer.NextQuestionIndex;
         }
     }
 }
