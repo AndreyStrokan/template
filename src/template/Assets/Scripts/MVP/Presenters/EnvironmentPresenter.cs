@@ -2,18 +2,35 @@ public class EnvironmentPresenter : PresenterBase<EnvironmentView, EnvironmentMo
 {
     public EnvironmentPresenter(EnvironmentView view, EnvironmentModel model) : base(view, model)
     {
+        // Background.
         Model.BackgroundSprite.PropertyChanged += OnBackgroundSpriteUpdated;
+        Model.BackgroundScale.PropertyChanged += OnBackgroundScaleUpdated;
+
+        // Character.
         Model.CharacterSprite.PropertyChanged += OnCharacterSpriteUpdated;
+        Model.CharacterScale.PropertyChanged += OnCharacterScaleUpdated;
     }
 
+    // Background.
+    private void OnBackgroundSpriteUpdated()
+    {
+        View.SetBackgroundSprite(Model.BackgroundSprite.Value);
+    }
+
+    private void OnBackgroundScaleUpdated()
+    {
+        View.SetBackgroundScale(Model.BackgroundScale.Value);
+    }
+
+    // Character.
     private void OnCharacterSpriteUpdated()
     {
         View.SetCharacterSprite(Model.CharacterSprite.Value);
     }
 
-    private void OnBackgroundSpriteUpdated()
+    private void OnCharacterScaleUpdated()
     {
-        View.SetBackgroundSprite(Model.BackgroundSprite.Value);
+        View.SetCharacterScale(Model.CharacterScale.Value);
     }
 
     public override void Dispose()

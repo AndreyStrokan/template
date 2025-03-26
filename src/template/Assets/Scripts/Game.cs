@@ -201,11 +201,13 @@ public class Game : MonoBehaviour
     // Models.
     private QuestionModel questionModel;
     private AnswersModel answersModel;
+    private EnvironmentModel environmentModel;
 
-    public void Initialize(QuestionModel questionModel, AnswersModel answersModel)
+    public void Initialize(QuestionModel questionModel, AnswersModel answersModel, EnvironmentModel environmentModel)
     {
         this.questionModel = questionModel;
         this.answersModel = answersModel;
+        this.environmentModel = environmentModel;
     }
 
     public async UniTask StartAsync(ScenarioDTO scenario, CancellationToken ct)

@@ -63,10 +63,13 @@ public class GameSceneContext : SceneContextBase
         environmentModel = new();
         environmentPresenter = new(environmentView, environmentModel);
 
+        // Move to Game.cs in the future.
         environmentModel.CharacterSprite.Value = characterSprite;
+        environmentModel.CharacterScale.Value = Vector3.one * 1.8f;
         environmentModel.BackgroundSprite.Value = backgroundSprite;
+        environmentModel.BackgroundScale.Value = Vector3.one * 1.6f;
 
-        game.Initialize(questionModel, answersModel);
+        game.Initialize(questionModel, answersModel, environmentModel);
         await game.StartAsync(new(), ct);
     }
 
