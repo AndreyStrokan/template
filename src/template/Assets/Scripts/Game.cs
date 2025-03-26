@@ -62,7 +62,7 @@ public class ScenarioDTO
         }
     };
 
-    public QuestionDTO[] Questions =
+    public QuestionDTO[] Questions = new QuestionDTO[]
     {
         new()
         {
@@ -76,7 +76,7 @@ public class ScenarioDTO
                     {
                         [2] = 10
                     },
-                    AvailabilityCondition =
+                    AvailabilityCondition = new()
                     {
                         [2] = new()
                         {
@@ -210,25 +210,26 @@ public class Game : MonoBehaviour
 
     public async UniTask StartAsync(ScenarioDTO scenario, CancellationToken ct)
     {
-        var state = new Dictionary<Characteristic, int>();
-        var questionIndex = 0;
-        while (!ct.IsCancellationRequested)
-        {
-            questionModel.Question.Value = scenario.Questions[questionIndex].Text;
-            answersModel.Answers.Value = scenario.Questions[questionIndex].Answers;
+       var state = new Dictionary<Characteristic, int>();
+       var questionIndex = 0;
+       while (!ct.IsCancellationRequested)
+       {
+           questionModel.Question.Value = scenario.Questions[questionIndex].Text;
+           answersModel.Answers.Value = scenario.Questions[questionIndex].Answers;
+       
+           var selectedAnswerIndex = await answersModel.PlayerInput.WaitAsync(ct);
+           var selectedAnswer = scenario.Questions[questionIndex].Answers[selectedAnswerIndex];
+       
 
-            var selectedAnswerIndex = await answersModel.PlayerInput.WaitAsync(ct);
-            var selectedAnswer = scenario.Questions[questionIndex].Answers[selectedAnswerIndex];
-
-            foreach (var selectedAnswerCharacteristic in selectedAnswer.ImpactOnCharacteristics)
-            {
-                //if (!state.ContainsKey(selectedAnswerCharacteristic.Key))
-                //{
-                //    state.Add(selectedAnswerCharacteristic.Key, 0);
-                //}
-                //
-                //state[selectedAnswerCharacteristic.Key] += selectedAnswerCharacteristic.Value;
-            }
-        }
+           foreach (var selectedAnswerCharacteristic in selectedAnswer.ImpactOnCharacteristics)
+           {
+               // if (!state.ContainsKey(selectedAnswerCharacteristic.Key))
+               // {
+               //     state.Add(selectedAnswerCharacteristic.Key, 0);
+               // }
+               // 
+               // state[selectedAnswerCharacteristic.Key] += selectedAnswerCharacteristic.Value;
+           }
+       }
     }
 }

@@ -34,7 +34,7 @@ public class AnswersView : ViewBase
         return index;
     }
 
-    public void CreateAnswer(Answer answer)
+    public void CreateAnswer(AnswerDTO answer)
     {
         var answerControl = Instantiate(answerPrefabDescriptor, grp_Container.transform);
         answerControl.Answer = answer.Text;

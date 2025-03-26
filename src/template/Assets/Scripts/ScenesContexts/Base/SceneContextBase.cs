@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Threading;
 using UnityEngine;
 
@@ -21,7 +22,16 @@ public abstract class SceneContextBase : MonoBehaviour
 
         RegisterServices(serviceContainer);
 
-        await InitializeAsync(contextCts.Token);
+        var loggerService = serviceContainer.Resolve<ILoggerService>();
+
+        try
+        {
+            await InitializeAsync(contextCts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            loggerService.Log("Initialization cancelled");
+        }
 
         contextsCount++;
     }

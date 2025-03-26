@@ -15,6 +15,16 @@ public class GameSceneContext : SceneContextBase
     [SerializeField]
     private AnswersView answersView;
 
+    [SerializeField]
+    private EnvironmentView environmentView;
+
+    [Header("Mock")]
+    [SerializeField]
+    private Sprite characterSprite;
+
+    [SerializeField]
+    private Sprite backgroundSprite;
+
     // Resolved Services.
     private ILoggerService loggerService;
     private ISceneLoaderService sceneLoaderService;
@@ -22,10 +32,12 @@ public class GameSceneContext : SceneContextBase
     // Presenters.
     private QuestionPresenter questionPresenter;
     private AnswersPresenter answersPresenter;
+    private EnvironmentPresenter environmentPresenter;
 
     // Models
     private QuestionModel questionModel;
     private AnswersModel answersModel;
+    private EnvironmentModel environmentModel;
 
     protected override void ResolveServices(IServiceResolver serviceResolver)
     {
@@ -47,6 +59,13 @@ public class GameSceneContext : SceneContextBase
         answersModel = new();
         answersPresenter = new(answersView, answersModel);
 
+        // Initialize Environment.
+        environmentModel = new();
+        environmentPresenter = new(environmentView, environmentModel);
+
+        environmentModel.CharacterSprite.Value = characterSprite;
+        environmentModel.BackgroundSprite.Value = backgroundSprite;
+
         game.Initialize(questionModel, answersModel);
         await game.StartAsync(new(), ct);
     }
@@ -56,5 +75,6 @@ public class GameSceneContext : SceneContextBase
     {
         questionPresenter.Dispose();
         answersPresenter.Dispose();
+        environmentPresenter.Dispose();
     }
 }
