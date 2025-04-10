@@ -1,0 +1,156 @@
+{
+  "Actors": [
+    {
+      "Name": "Trump",
+      "PNGImage": ""
+    },
+    {
+      "Name": "Elon",
+      "PNGImage": ""
+    }
+  ],
+  "Characteristics": [
+    "EmotionsAndLogics",
+    "SelfishnessAndAltruism",
+    "ProgressivityAndConservatism", // 2
+    "DiplomacyAndAggression"
+  ],
+  "Environments": [
+    {
+      "PNGImage": ""
+    }
+  ],
+  "Questions": [
+    {
+      "Text": "Question 1",
+      "Answers": [
+        {
+          "Text": "Answer 1",
+          "ImpactOnCharacteristics": {
+            "2": 10
+          },
+          "AvailabilityCondition": {
+            "2": {
+              "Type": 0,
+              "Value": 10
+            }
+          }
+        },
+        {
+          "Text": "Answer 2",
+          "ImpactOnCharacteristics": {
+            "0": 8
+          },
+          "AvailabilityCondition": null
+        },
+        {
+          "Text": "Answer 3",
+          "ImpactOnCharacteristics": {
+            "1": -5
+          },
+          "AvailabilityCondition": null
+        },
+        {
+          "Text": "Answer 4",
+          "ImpactOnCharacteristics": {
+            "0": -10
+          },
+          "AvailabilityCondition": null
+        }
+      ]
+    },
+    {
+      "Text": "Question 2",
+      "Answers": [
+        {
+          "Text": "Answer 1",
+          "ImpactOnCharacteristics": {
+            "2": 10
+          },
+          "AvailabilityCondition": null
+        },
+        {
+          "Text": "Answer 2",
+          "ImpactOnCharacteristics": {
+            "0": 8
+          },
+          "AvailabilityCondition": null
+        },
+        {
+          "Text": "Answer 3",
+          "ImpactOnCharacteristics": {
+            "1": -5
+          },
+          "AvailabilityCondition": null
+        },
+        {
+          "Text": "Answer 4",
+          "ImpactOnCharacteristics": {
+            "0": -10
+          },
+          "AvailabilityCondition": null
+        }
+      ]
+    }
+  ],
+  "Nodes": [
+    {
+      "QuestionSelectionCondition": {
+        "0": {},
+        "1": {
+          "1": {
+            "Type": 0,
+            "Value": 10
+          }
+        },
+        "2": {
+          "1": {
+            "Type": 1,
+            "Value": 10
+          }
+        },
+        "3": {
+          "0": {
+            "Type": 1,
+            "Value": 3
+          },
+          "1": {
+            "Type": 0,
+            "Value": 5
+          }
+        }
+      },
+      "ActorId": 0,
+      "EnvironmentId": 0
+    },
+    {
+      "QuestionSelectionCondition": {
+        "0": {},
+        "1": {
+          "1": {
+            "Type": 0,
+            "Value": 10
+          }
+        },
+        "2": {
+          "1": {
+            "Type": 1,
+            "Value": 10
+          }
+        },
+        "3": {
+          "0": {
+            "Type": 1,
+            "Value": 3
+          },
+          "1": {
+            "Type": 0,
+            "Value": 5
+          }
+        }
+      },
+      "ActorId": 0,
+      "EnvironmentId": 0
+    }
+  ]
+}
